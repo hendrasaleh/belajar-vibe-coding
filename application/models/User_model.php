@@ -57,5 +57,20 @@ class User_model extends CI_Model {
         );
         return $this->db->insert('sessions', $data);
     }
+
+    /**
+     * Get user by session token (JOIN sessions and users)
+     * 
+     * @param string $token
+     * @return object|null
+     */
+    public function get_user_by_token($token) {
+        $this->db->select('users.id, users.name, users.email, users.created_at');
+        $this->db->from('sessions');
+        $this->db->join('users', 'users.id = sessions.user_id');
+        $this->db->where('sessions.token', $token);
+        $query = $this->db->get();
+        return $query->row();
+    }
 }
 
