@@ -1,0 +1,41 @@
+buatkan issue.md yang berisi perencanaan yang nanti akan diimplementasikan oleh Junior Programmer atau AI model yang lebih murah.
+
+Isi dari planningnya adalah sebagai berikut:
+
+Buat table sessions:
+id integer autoincrement
+token varchar 255 not null (isinya UUID untuk token user yang login)
+user_id integer (FK ke table users)
+created_at timestamp not null
+updated_at timestamp not null
+
+Buatkan API untuk login user
+
+endpoint : POST /api/users/login
+
+Request Body:
+{
+    "email": "hendra@localhost"
+    "password": "rahasia"
+}
+
+Response Body (Success) :
+{
+    "data" : "token"
+}
+
+Response Body (Error)
+{
+    "error" : "Email atau password salah"
+}
+
+Struktur folder mengikuti standar CodeIgniter 3 yang sudah ada:
+- Controller : untuk logic bisnis aplikasi
+- Model : untuk interaksi dengan database
+
+Struktur File
+- Controller : menggunakan format misa Auth/User.php
+- Model : menggunakan format misal User_modal.php
+
+Jelaskan tahapan-tahapan yang harus dilakukan untuk mengimplementasikan planning ini. Anggap nanti yang mengimplementasikan adalah Junior Programmer atau Model AI yang lebih murah
+

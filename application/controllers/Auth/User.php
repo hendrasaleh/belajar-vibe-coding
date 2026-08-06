@@ -59,4 +59,56 @@ class User extends CI_Controller {
                  ->set_output(json_encode(array('error' => 'Gagal menyimpan data user')));
         }
     }
+
+    public function login() {
+        // Read raw JSON input
+        $input = json_decode(trim(file_get_contents('php://input')), true);
+
+        if (!$input || empty($input['email']) || empty($input['password'])) {
+            $this->output
+                 ->set_status_header(401)
+                 ->set_content_type('application/json', 'utf-8')
+                 ->set_output(json_encode(array('error' => 'Email atau password salah')));
+            return;
+        }
+
+        $email = trim($input['email']);
+        $password = $input['password'];
+
+        $user = $this->User_model->get_user_by_email($email);
+
+        if (!$user || !password_verify($password, $user->password)) {
+            $this->output
+                 ->set_status_header(401)
+                 ->set_content_type('application/json', 'utf-8')
+                 ->set_output(json_encode(array('error' => 'Email atau password salah')));
+            return;
+        }
+
+        // Generate UUID v4
+        $token = $this->generate_uuid();
+
+        // Create session in database
+        $created = $this->User_model->create_session($user->id, $token);
+
+        if ($created) {
+            $this->output
+                 ->set_status_header(200)
+                 ->set_content_type('application/json', 'utf-8')
+                 ->set_output(json_encode(array('data' => $token)));
+        } else {
+            $this->output
+                 ->set_status_header(500)
+                 ->set_content_type('application/json', 'utf-8')
+                 ->set_output(json_encode(array('error' => 'Gagal membuat session')));
+        }
+    }
+
+    private function generate_uuid() {
+        $data = random_bytes(16);
+        $data[6] = chr(ord($data[6]) & 0x0f | 0x40);
+        $data[8] = chr(ord($data[8]) & 0x3f | 0x80);
+        return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
+    }
 }
+
