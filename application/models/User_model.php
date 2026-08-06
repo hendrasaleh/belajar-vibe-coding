@@ -28,4 +28,34 @@ class User_model extends CI_Model {
     public function insert_user($data) {
         return $this->db->insert('users', $data);
     }
+
+    /**
+     * Get user by email
+     * 
+     * @param string $email
+     * @return object|null
+     */
+    public function get_user_by_email($email) {
+        $query = $this->db->get_where('users', array('email' => $email));
+        return $query->row();
+    }
+
+    /**
+     * Create a new session token for a user
+     * 
+     * @param int $user_id
+     * @param string $token
+     * @return bool
+     */
+    public function create_session($user_id, $token) {
+        $now = date('Y-m-d H:i:s');
+        $data = array(
+            'user_id'    => $user_id,
+            'token'      => $token,
+            'created_at' => $now,
+            'updated_at' => $now
+        );
+        return $this->db->insert('sessions', $data);
+    }
 }
+
