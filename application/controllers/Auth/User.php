@@ -104,7 +104,55 @@ class User extends CI_Controller {
         }
     }
 
+    public function current() {
+        // Get Authorization header
+        $auth_header = $this->input->get_request_header('Authorization', TRUE);
+
+        if (!$auth_header || strpos($auth_header, 'Bearer ') !== 0) {
+            $this->output
+                 ->set_status_header(401)
+                 ->set_content_type('application/json', 'utf-8')
+                 ->set_output(json_encode(array('error' => 'Unauthorized')));
+            return;
+        }
+
+        // Extract token
+        $token = substr($auth_header, 7);
+
+        if (empty($token)) {
+            $this->output
+                 ->set_status_header(401)
+                 ->set_content_type('application/json', 'utf-8')
+                 ->set_output(json_encode(array('error' => 'Unauthorized')));
+            return;
+        }
+
+        // Look up user by token
+        $user = $this->User_model->get_user_by_token($token);
+
+        if (!$user) {
+            $this->output
+                 ->set_status_header(401)
+                 ->set_content_type('application/json', 'utf-8')
+                 ->set_output(json_encode(array('error' => 'Unauthorized')));
+            return;
+        }
+
+        $data = array(
+            'id'         => (int) $user->id,
+            'name'       => $user->name,
+            'email'      => $user->email,
+            'created_at' => $user->created_at
+        );
+
+        $this->output
+             ->set_status_header(200)
+             ->set_content_type('application/json', 'utf-8')
+             ->set_output(json_encode(array('data' => $data)));
+    }
+
     private function generate_uuid() {
+
         $data = random_bytes(16);
         $data[6] = chr(ord($data[6]) & 0x0f | 0x40);
         $data[8] = chr(ord($data[8]) & 0x3f | 0x80);
